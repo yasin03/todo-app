@@ -1,10 +1,9 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import List from "../screens/List";
-import Detail from "../screens/Detail";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Profile from "../screens/profile/Profile";
 import TodoList from "../screens/todos/TodoList";
+import TodayTodo from "../screens/todos/TodayTodo";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -19,8 +18,8 @@ const Router = () => {
         headerBackTitleVisible: true,
       }}
     >
-      <Stack.Screen name="List" component={List} />
-      <Stack.Screen name="Yapılacaklar" component={Detail} />
+      <Stack.Screen name="List" component={TodoList} />
+      <Stack.Screen name="Yapılacaklar" component={TodayTodo} />
     </Stack.Navigator>;
   };
   return (
@@ -28,7 +27,7 @@ const Router = () => {
       <Tab.Navigator
         screenOptions={{
           tabBarStyle: {
-            backgroundColor: "#ef4444",
+            backgroundColor: "#383eff",
             height: 70,
             paddingTop: 10,
             paddingBottom: 10,
@@ -43,7 +42,7 @@ const Router = () => {
       >
         <Tab.Screen
           name="Bugün"
-          component={List}
+          component={TodayTodo}
           options={{
             tabBarIcon: ({ color, focused }) => (
               <Icon name="calendar-today" size={24} color={color} />
@@ -51,6 +50,16 @@ const Router = () => {
             headerShown: true,
             headerTitleStyle: {
               fontSize: 30,
+            },
+            headerStyle: {
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 5,
+                height: 3,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 4.65,
+              elevation: 3,
             },
           }}
         />
@@ -65,6 +74,16 @@ const Router = () => {
             headerTitleStyle: {
               fontSize: 30,
             },
+            headerStyle: {
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 5,
+                height: 3,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 4.65,
+              elevation: 3,
+            },
           }}
         />
         <Tab.Screen
@@ -77,6 +96,16 @@ const Router = () => {
             headerShown: true,
             headerTitleStyle: {
               fontSize: 30,
+            },
+            headerStyle: {
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 5,
+                height: 3,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 4.65,
+              elevation: 3,
             },
           }}
         />

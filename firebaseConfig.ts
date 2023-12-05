@@ -9,8 +9,8 @@ const firebaseConfig = {
   projectId: "lemart-todo-app",
   storageBucket: "lemart-todo-app.appspot.com",
   messagingSenderId: "27284629627",
-  appId: "1:27284629627:web:87915433d6567836d89ade",
-  measurementId: "G-2VSPLRQ2BD",
+  appId: "1:27284629627:web:3921abafeb16b3ead89ade",
+  measurementId: "G-6S9D7RKX6C",
 };
 
 export const FIREBASE_APP = initializeApp(firebaseConfig);

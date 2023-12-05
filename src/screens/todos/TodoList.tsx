@@ -10,7 +10,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../firebaseConfig";
-import { Button, CheckBox, Input } from "@ui-kitten/components";
+import { Button, CheckBox, Input, Layout } from "@ui-kitten/components";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CreateTodo from "./CreateTodo";
 
@@ -18,11 +18,19 @@ const TodoList = () => {
   const navigation: any = useNavigation();
   const [todo, setTodo] = useState("");
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [checked, setChecked] = useState<Boolean>(false);
-  const [searchText, setSearchText] = useState<String>("");
+  const [checked, setChecked] = useState<boolean>(false);
 
-  console.log("search--"+searchText);
-  
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<Todo[]>([]);
+
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+    const filteredTodos = todos.filter((todo) =>
+      todo.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setSearchResults(filteredTodos);
+  };
+
   const loadTodos = () => {
     const todoRef = collection(FIREBASE_DB, "todos");
     const subscriber = onSnapshot(todoRef, {
@@ -51,19 +59,10 @@ const TodoList = () => {
     };
 
     const handleDelete = () => {
-      Alert.alert(
-        "",
-        "Silmek istediğinize emin misiniz?",
-        [
-          {
-            text: "Cancel",
-            onPress: () => console.log("Cancel Pressed"),
-            style: "cancel",
-          },
-          { text: "SİL", onPress: () => deleteDoc(ref) },
-        ],
-        { cancelable: false }
-      );
+      Alert.alert("", "Silmek istediğinize emin misiniz?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "SİL", onPress: () => deleteDoc(ref) },
+      ]);
     };
 
     return (
@@ -72,6 +71,7 @@ const TodoList = () => {
           style={{ flex: 0.1 }}
           checked={item.done}
           onChange={toggleDone}
+          
         />
         <View style={{ flex: 0.8 }}>
           <Text
@@ -82,12 +82,10 @@ const TodoList = () => {
           >
             {item.title}
           </Text>
-          <Text>{item?.toString()}</Text>
+          <Text>{item?.desc}</Text>
         </View>
         <Button
-          style={{
-            flex: 0.1,
-          }}
+          style={styles.deleteButton}
           size="tiny"
           appearance="ghost"
           status="danger"
@@ -104,18 +102,26 @@ const TodoList = () => {
     <>
       <View style={styles.listContainer}>
         <Input
-          status="basic"
           placeholder="Search"
           size="large"
           style={styles.searchInput}
-          accessoryRight={() => <Icon name="magnify" size={24} color="black" />}
-          onChangeText={(nextValue) => setSearchText(nextValue)}
+          accessoryRight={() => (
+            <Icon
+              name={searchResults.length > 0 ? "window-close" : "magnify"}
+              size={24}
+              color="gray"
+              onPress={() => (setSearchResults([]), setSearchQuery(""))}
+            />
+          )}
+          onChangeText={handleSearch}
+          value={searchQuery}
         />
 
-        <FlatList data={todos} renderItem={renderTodoItem} />
+        <FlatList
+          data={searchResults.length > 0 ? searchResults : todos}
+          renderItem={renderTodoItem}
+        />
       </View>
-
-      <CreateTodo />
     </>
   );
 };
@@ -125,9 +131,12 @@ export default TodoList;
 const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 10,
+    paddingTop: 10,
+    flex: 1,
+    backgroundColor: "white",
   },
   searchInput: {
-    borderWidth: 0.2,
+    borderWidth: 0.5,
     marginVertical: 15,
   },
   textInput: {
@@ -143,7 +152,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.27,
     shadowRadius: 4.65,
-
     elevation: 6,
   },
   renderContainer: {
@@ -151,10 +159,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     padding: 10,
-    marginBottom: 15,
+    marginBottom: 10,
     alignItems: "center",
+    justifyContent: "space-between",
     borderWidth: 1,
     borderRadius: 5,
     borderColor: "#d1d1d1",
+    backgroundColor: "white",
+  },
+  deleteButton: {
+    flex: 0.1,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
   },
 });

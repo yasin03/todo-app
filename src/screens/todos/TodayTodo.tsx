@@ -1,6 +1,14 @@
-import { FlatList, StyleSheet, Text, View, Alert } from "react-native";
+import {
+  View,
+  Text,
+  Alert,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { Todo } from "../../utils/types";
 import {
   collection,
   deleteDoc,
@@ -8,19 +16,27 @@ import {
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
-import { FIREBASE_DB } from "../../firebaseConfig";
-import CreateTodo from "./todos/CreateTodo";
-import { Button, CheckBox } from "@ui-kitten/components";
+import { FIREBASE_DB } from "../../../firebaseConfig";
+import { Button, CheckBox} from "@ui-kitten/components";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import firebase from "firebase/app";
-import "firebase/firestore";
-import { Todo } from "../utils/types";
+import CreateTodo from "./CreateTodo";
 
-const List = () => {
+const TodayTodo = () => {
   const navigation: any = useNavigation();
   const [todo, setTodo] = useState("");
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState<boolean>(false);
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<Todo[]>([]);
+
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+    const filteredTodos = todos.filter((todo) =>
+      todo.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setSearchResults(filteredTodos);
+  };
 
   const loadTodos = () => {
     const todoRef = collection(FIREBASE_DB, "todos");
@@ -45,34 +61,25 @@ const List = () => {
 
   const renderTodoItem = ({ item }: { item: Todo }) => {
     const ref = doc(FIREBASE_DB, `todos/${item.id}`);
-    console.log("item", item.dateTime);
 
     const toggleDone = () => {
       updateDoc(ref, { done: !item.done });
     };
 
     const handleDelete = () => {
-      Alert.alert(
-        "",
-        "Silmek istediğinize emin misiniz?",
-        [
-          {
-            text: "Cancel",
-            onPress: () => console.log("Cancel Pressed"),
-            style: "cancel",
-          },
-          { text: "SİL", onPress: () => deleteDoc(ref) },
-        ],
-        { cancelable: false }
-      );
+      Alert.alert("", "Silmek istediğinize emin misiniz?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "SİL", onPress: () => deleteDoc(ref) },
+      ]);
     };
 
     return (
-      <View key={item.id} style={styles.renderContainer}>
+      <TouchableOpacity key={item.id} style={styles.renderContainer}>
         <CheckBox
           style={{ flex: 0.1 }}
           checked={item.done}
           onChange={toggleDone}
+
         />
         <View style={{ flex: 0.8 }}>
           <Text
@@ -83,12 +90,10 @@ const List = () => {
           >
             {item.title}
           </Text>
-          <Text>{item?.toString()}</Text>
+          <Text>{item?.desc}</Text>
         </View>
         <Button
-          style={{
-            flex: 0.1,
-          }}
+          style={styles.deleteButton}
           size="tiny"
           appearance="ghost"
           status="danger"
@@ -97,15 +102,17 @@ const List = () => {
           )}
           onPress={handleDelete}
         />
-      </View>
+      </TouchableOpacity>
     );
   };
 
   return (
     <>
       <View style={styles.listContainer}>
-        <Text>List</Text>
-        <FlatList data={todos} renderItem={renderTodoItem} />
+        <FlatList
+          data={searchResults.length > 0 ? searchResults : todos}
+          renderItem={renderTodoItem}
+        />
       </View>
 
       <CreateTodo />
@@ -113,11 +120,18 @@ const List = () => {
   );
 };
 
-export default List;
+export default TodayTodo;
 
 const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 10,
+    paddingTop: 15,
+    flex: 1,
+    backgroundColor: "white",
+  },
+  searchInput: {
+    borderWidth: 0.5,
+    marginVertical: 15,
   },
   textInput: {
     backgroundColor: "yellow",
@@ -132,7 +146,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.27,
     shadowRadius: 4.65,
-
     elevation: 6,
   },
   renderContainer: {
@@ -140,10 +153,27 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     padding: 10,
-    marginBottom: 15,
+    marginBottom: 10,
     alignItems: "center",
-    borderWidth: 1,
+    justifyContent: "space-between",
+    borderWidth: 0.5,
     borderRadius: 5,
     borderColor: "#d1d1d1",
+    backgroundColor: "white",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 5,
+      height: 3,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4.65,
+    elevation: 2,
+  },
+  deleteButton: {
+    flex: 0.1,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
   },
 });

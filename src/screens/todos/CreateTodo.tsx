@@ -123,11 +123,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     bottom: 20,
     right: 20,
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     borderRadius: 100,
     cursor: "pointer",
     backgroundColor: "#ef4444",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 5,
+      height: 3,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4.65,
+    elevation: 3,
   },
 
   backdrop: {
